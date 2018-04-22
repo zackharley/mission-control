@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="../../vendor/vue/vue.js"></script>
+    <script defer src="../../vendor/moment/moment.js"></script>
+    <link rel="stylesheet" href="options.css">
+    <link rel="stylesheet" href="../../common/common.css">
+  </head>
+  <body>
+    <main id="app">
+      <h1>Options</h1>
+
+      <section id="blocked-urls"
+               class="options section">
+        <h2>Block URLs</h2>
+        <label for="url">Enter a URL to block<br>e.g. https://www.example.com</label>
+        <input type="url"
+               id="url"
+               @keyup.enter="handleNewBlockedUrl"
+               v-model="forms.blockedUrls.input"/>
+        <ul>
+          <li v-for="url in state.blockedUrls">
+            <div>
+              <p>{{url}}</p>
+              <button v-on:click="() => handleRemovedBlockedUrl(url)">x</button>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section id="redirect-url"
+               class="options section">
+
+      <section v-if="!state.goal || (!state.goal.description && !state.lastResetDate)"
+               class="options section">
+        <h2>Set a Goal</h2>
+        <p>Looks like you haven't set a goal! Why don't you set one!</p>
+        <form id="goal-form"
+              v-on:submit="handleGoalFormSubmit">
+          <label for="goal-description">Enter a goal description:</label>
+          <textarea v-model="forms.goal.description"
+                    id="goal-description"
+                    placeholder="I want to stop doing ....">
+          </textarea>
+          <label for="goal-last-reset-date">When did you start or will you start your goal?</label>
+          <input v-model="forms.goal.lastResetDate"
+                 id="goal-last-reset-date"
+                 type="date"
+                 placeholder="A date"/>
+          <button type="submit"
+                  class="btn primary">
+            Track Goal
+          </button>
+        </form>
+      </section>
+      <section v-else-if="state.goal && state.goal.description && state.goal.lastResetDate"
+               class="options section">
+        <h2>Your Current Goal</h2>
+        <p>{{state.goal.description}}</p>
+        <p>{{state.goal.lastResetDate}}</p>
+        <button v-on:click="handleClearGoal"
+                class="btn negative">
+          Clear Goal
+        </button>
+      </section>
+
+      <section id="incognito"
+               class="options section">
+        <h1>Incognito Access</h1>
+        <div v-if="!isAllowedIncognitoAccess">
+          <button v-on:click="redirectToManageExtension"
+                  class="btn primary">
+            Go to Settings
+          </button>
+        </div>
+        <div v-else>
+          Incognito mode enabled!
+        </div>
+      </section>
+
+    </main>
+  </body>
+  <script type="module" src="options.js"></script>
+</html>

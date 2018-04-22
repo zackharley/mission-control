@@ -1,0 +1,75 @@
+/* --------------------- */
+/* -- VARIABLES START -- */
+
+:root {
+    --blue: #486be0;
+    --red: #e0284f;
+    --primary-color: var(--blue);
+    --secondary-color: var(--red);
+}
+
+/* --- VARIABLES END --- */
+/* --------------------- */
+
+/* --------------------- */
+/* --- LAYOUT START ---- */
+
+.flex {
+    display: flex;
+}
+
+.flex.center {
+    align-items: center;
+    justify-content: center;
+}
+
+.flex.column {
+    flex-direction: column;
+}
+
+.flex.row {
+    flex-direction: row;
+}
+
+.flex.row.center-vertical,
+.flex.column.center-horizontal {
+    align-items: center;
+}
+
+.flex.row.center-horizontal,
+.flex.column.center-vertical {
+    justify-content: center;
+}
+
+/* ---- LAYOUT END ----- */
+/* --------------------- */
+
+/* --------------------- */
+/* --- BUTTONS START --- */
+
+.btn {
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    padding: 8px 20px;
+    box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.btn:focus {
+    outline: none;
+}
+
+.btn.primary,
+.btn.positive {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn.secondary,
+.btn.negative {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+/* ---- BUTTONS END ---- */
+/* --------------------- */

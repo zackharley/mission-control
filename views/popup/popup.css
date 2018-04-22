@@ -1,0 +1,32 @@
+* {
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    margin: 0;
+}
+
+.popup-container {
+    height: 300px;
+    width: 300px;
+}
+
+.popup-goal-counter {
+    height: 100%;
+    width: 100%;
+}
+
+.popup-goal-counter > p {
+    margin: 0;
+}
+
+.popup-days-since-reset-number {
+    font-size: 32px;
+}
+
+.popup-days-since {
+
+}
+
+.popup-last-reset {
+}
