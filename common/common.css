@@ -2,9 +2,12 @@
 /* -- VARIABLES START -- */
 
 :root {
-    --blue: #486be0;
+    --blue: #51BEE5;
+    --grey: #b9b6b3;
+    --orange: #F77759;
     --red: #e0284f;
     --primary-color: var(--blue);
+    --accent-color: var(--orange);
     --secondary-color: var(--red);
 }
 
@@ -42,6 +45,28 @@
 }
 
 /* ---- LAYOUT END ----- */
+/* --------------------- */
+
+/* --------------------- */
+/* ---- COLORS START --- */
+
+.color-primary {
+    color: var(--primary-color);
+}
+
+.color-accent {
+    color: var(--accent-color);
+}
+
+.color-secondary {
+    color: var(--secondary-color);
+}
+
+.color-grey {
+    color: var(--grey);
+}
+
+/* ---- COLORS END ----- */
 /* --------------------- */
 
 /* --------------------- */

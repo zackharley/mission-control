@@ -8,27 +8,48 @@
     <script src="../../vendor/moment/moment.js"></script>
   </head>
   <body>
-    <main id="app" class="popup-container">
-      <section v-if="loading">
+    <main id="app" class="popup-wrapper">
+      <div v-if="loading">
         Loading
-      </section>
-      <section v-else class="popup-goal-counter">
-        <section v-if="state.goal && state.goal.description && state.goal.lastResetDate"
-                 class="flex column center">
-          <h1>Mission Control</h1>
-          <p class="popup-days-since-reset-number">{{ state.goal.daysSinceReset }}</p>
-          <p class="popup-days-since">days since</p>
-          <p class="popup-last-reset">last reset</p>
+      </div>
+      <div v-else
+           style="width: 100%; height: 100%;">
+        <div v-if="state.goal && state.goal.description && state.goal.lastResetDate"
+             class="flex column"
+             style="padding: 30px;height: 100%;">
+          <div class="flex row"
+               style="align-items: flex-end;">
+            <h1 class="color-primary"
+                style="font-size: 1.2rem;">
+              Mission Control
+            </h1>
+            <p style="margin-left: auto;font-size: 0.75rem;"
+               class="color-grey">
+              Esc to close
+            </p>
+          </div>
+          <div class="flex column center"
+               style="flex: 1 1 auto;">
+            <p style="font-size: 3rem;">
+              {{ state.goal.daysSinceReset }}
+            </p>
+            <p style="font-size: 0.88rem;">
+              days since
+            </p>
+            <p style="font-size: 0.88rem;">
+              last reset
+            </p>
+          </div>
           <button v-on:click="handleResetClick"
                   class="btn secondary">
             Reset
           </button>
-        </section>
-        <section v-else-if="!state.goal || (!state.goal.description && !state.goal.lastResetDate)">
+        </div>
+        <div v-else-if="!state.goal || (!state.goal.description && !state.goal.lastResetDate)">
           <p>Looks like you don't currently have a goal!</p>
           <a target="_blank" href="../../views/options/options.html">Set a Goal</a>
-        </section>
-      </section>
+        </div>
+      </div>
     </main>
   </body>
   <script type="module" src="popup.js"></script>

@@ -14,3 +14,4 @@
 - [ ] Show/hide goal on popup
 - [ ] Enable in incognito by default
     - [x] If that's not possible, add a button to go to extension settings
+- [ ] Create on install features walkthrough (https://dribbble.com/shots/2362292-Predict-Launch)
