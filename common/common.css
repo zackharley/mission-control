@@ -1,9 +1,17 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 /* --------------------- */
 /* -- VARIABLES START -- */
 
 :root {
+    --black: #1B1B1B;
     --blue: #51BEE5;
     --grey: #b9b6b3;
+    --green: #4CAF50;
     --orange: #F77759;
     --red: #e0284f;
     --primary-color: var(--blue);
@@ -16,6 +24,10 @@
 
 /* --------------------- */
 /* --- LAYOUT START ---- */
+
+.text.center {
+    text-align: center;
+}
 
 .flex {
     display: flex;
@@ -66,6 +78,10 @@
     color: var(--grey);
 }
 
+.color-green {
+    color: var(--green);
+}
+
 /* ---- COLORS END ----- */
 /* --------------------- */
 
@@ -74,10 +90,15 @@
 
 .btn {
     border: none;
-    border-radius: 4px;
-    font-size: 14px;
+    border-radius: 2px;
+    font-size: 0.88rem;
     padding: 8px 20px;
     box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
 .btn:focus {
@@ -96,5 +117,33 @@
     color: white;
 }
 
+.btn.grey {
+    background-color: var(--grey);
+    color: white;
+}
+
 /* ---- BUTTONS END ---- */
 /* --------------------- */
+
+/* --------------------- */
+/* ---- INPUTS START --- */
+
+.input.text {
+    border: 1px solid var(--grey);
+    border-radius: 2px;
+    margin: 10px 0;
+    font-size: 0.88rem;
+    padding: 8px 12px;
+}
+
+.input.text::placeholder {
+    color: var(--grey);
+}
+
+.input:focus {
+    outline: none;
+}
+
+/* ----- INPUTS END ---- */
+/* --------------------- */
+

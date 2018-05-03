@@ -1,18 +1,47 @@
 'use strict';
 
-import { chromeUtils } from '../../common/index.js';
+import { chromeUtils } from '../../common/common.js';
+
+Vue.use(VueMaterial.default);
 
 new Vue({
     el: '#app',
     data: {
-        loading: true,
+        optionsPageUrl: `chrome-extension://${chrome.runtime.id}/views/options/options.html`,
+        isLoading: true,
         state: {}
     },
     async mounted() {
         await this.fetchState();
-        this.loading = false;
+        this.isLoading = false;
     },
     methods: {
+        async handleResetClick() {
+            const updatedGoal = {
+                ...this.state.goal,
+                lastResetDate: moment().valueOf()
+            };
+            await this.setSyncStorageState({ goal: updatedGoal });
+        },
+
+        async handleCancelClick() {
+            const updatedGoal = {
+                description: '',
+                lastResetDate: null
+            };
+            await this.setSyncStorageState({ goal: updatedGoal });
+        },
+
+        async setSyncStorageState(newState = {}) {
+            const updatedState = {
+                ...this.state,
+                ...newState
+            };
+            await chromeUtils.storage.sync.set({ state: updatedState });
+            console.log('Storage set successfully!');
+            await this.fetchState();
+        },
+
         async fetchState() {
             const { state } = await chromeUtils.storage.sync.get(['state']);
             const today = moment();
@@ -20,17 +49,13 @@ new Vue({
             state.goal.daysSinceReset = today.diff(lastResetDate, 'days');
             this.state = state;
         },
-        async handleResetClick() {
-            const updatedGoal = Object.assign({}, this.state.goal, {
-                lastResetDate: moment().valueOf()
-            });
-            await this.setSyncStorageState({ goal: updatedGoal });
-        },
-        async setSyncStorageState(newState = {}) {
-            const updatedState = Object.assign({}, this.state, newState);
-            await chromeUtils.storage.sync.set({ state: updatedState });
-            console.log('Storage set successfully!');
-            await this.fetchState();
-        },
+
+        async redirectToOptionsPage(focus) {
+            await chromeUtils.tabs.create({
+                url: focus
+                    ? `${this.optionsPageUrl}?focus=${focus}`
+                    : this.optionsPageUrl
+            })
+        }
     }
 });

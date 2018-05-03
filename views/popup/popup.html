@@ -3,53 +3,77 @@
   <head>
     <link rel="stylesheet" href="../../common/common.css">
     <link rel="stylesheet" href="popup.css">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons">
+    <link rel="stylesheet" href="../../vendor/vue-material/vue-material.min.css">
+    <link rel="stylesheet" href="../../vendor/vue-material/themes/default.css">
     <script src="../../vendor/vue/vue.js"></script>
+    <script src="../../vendor/vue-material/vue-material.min.js"></script>
     <script src="../../vendor/moment/moment.js"></script>
   </head>
   <body>
     <main id="app" class="popup-wrapper">
-      <div v-if="loading">
-        Loading
-      </div>
-      <div v-else
-           style="width: 100%; height: 100%;">
-        <div v-if="state.goal && state.goal.description && state.goal.lastResetDate"
-             class="flex column"
-             style="padding: 30px;height: 100%;">
-          <div class="flex row"
-               style="align-items: flex-end;">
-            <h1 class="color-primary"
-                style="font-size: 1.2rem;">
-              Mission Control
-            </h1>
-            <p style="margin-left: auto;font-size: 0.75rem;"
-               class="color-grey">
-              Esc to close
-            </p>
+      <md-app style="width: 100%; height: 100%;">
+
+        <md-app-toolbar class="md-primary">
+          <img src="../../assets/images/logo128.png"
+               style="height:30px;"/>
+          <p class="md-title">Mission Control</p>
+          <div style="margin-left: auto; cursor: pointer;"
+               v-on:click="() => redirectToOptionsPage()">
+            <md-icon>
+              settings
+            </md-icon>
           </div>
-          <div class="flex column center"
-               style="flex: 1 1 auto;">
-            <p style="font-size: 3rem;">
-              {{ state.goal.daysSinceReset }}
-            </p>
-            <p style="font-size: 0.88rem;">
-              days since
-            </p>
-            <p style="font-size: 0.88rem;">
-              last reset
-            </p>
+        </md-app-toolbar>
+
+        <md-app-content class="flex column">
+          <div style="flex: 1 1 auto;"
+               class="flex column center text">
+            <p v-if="state.goal && state.goal.description && state.goal.isGoalVisible"
+               class="md-title"
+               style="margin-bottom: 30px;">{{state.goal.description}}</p>
+            <div v-if="state.goal && state.goal.description && state.goal.lastResetDate"
+                 class="flex column center">
+              <p class="md-display-3">{{ state.goal.daysSinceReset }}</p>
+              <p v-if="state.goal && state.goal.daysSinceReset && state.goal.daysSinceReset === 1"
+                 class="md-title">
+                day since last reset
+              </p>
+              <p v-else
+                 class="md-subheading">
+                days since last reset
+              </p>
+            </div>
+            <div v-else-if="!state.goal || (!state.goal.description && !state.goal.lastResetDate)"
+                 class="flex column center"
+                 style="flex: 1 1 auto;">
+              <md-icon style="margin: 10px 0 10px;"
+                       class="md-size-2x md-primary">
+                new_releases
+              </md-icon>
+              <p class="md-title">Set a goal</p>
+              <p style="text-align: center;">Remind yourself why you're using Mission Control!</p>
+              <md-button class="md-raised md-primary"
+                         v-on:click="() => redirectToOptionsPage('goal')"
+                         style="margin-top: 20px;">
+                Set a Goal
+              </md-button>
+            </div>
           </div>
-          <button v-on:click="handleResetClick"
-                  class="btn secondary">
-            Reset
-          </button>
-        </div>
-        <div v-else-if="!state.goal || (!state.goal.description && !state.goal.lastResetDate)">
-          <p>Looks like you don't currently have a goal!</p>
-          <a target="_blank" href="../../views/options/options.html">Set a Goal</a>
-        </div>
-      </div>
+          <div v-show="state.goal && state.goal.description && state.goal.lastResetDate"
+               class="flex row center">
+            <md-button v-on:click="handleResetClick"
+                       class="md-raised">
+              Reset Date
+            </md-button>
+            <md-button v-on:click="handleCancelClick"
+                       class="md-raised md-accent">
+              Clear Goal
+            </md-button>
+          </div>
+        </md-app-content>
+      </md-app>
     </main>
   </body>
   <script type="module" src="popup.js"></script>

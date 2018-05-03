@@ -1,19 +1,21 @@
 'use strict';
 
-import { chromeUtils } from '../../common/index.js';
+import { chromeUtils, toUrlString } from '../../common/common.js';
 
 const DEFAULT_STATE = {
     blockedUrls: [],
-    thingsToDo: [],
-    thingsToNotDo: [],
+    customRedirectUrl: null,
     goal: {
-        description: '',
-        lastResetDate: null
-    }
+        description: null,
+        lastResetDate: null,
+        isGoalVisible: false
+    },
+    thingsToDo: [],
+    thingsToNotDo: []
 };
+const DEFAULT_REDIRECT_URL = '/views/mission-control/mission-control.html';
 
 chrome.runtime.onInstalled.addListener(initializeExtension);
-chrome.runtime.onInstalled.addListener(openOptionsPage);
 chrome.webNavigation.onBeforeNavigate.addListener(filterWebNavigation);
 
 async function initializeExtension(details) {
@@ -21,6 +23,8 @@ async function initializeExtension(details) {
     const { state } = await chromeUtils.storage.sync.get(['state']);
 
     if (details.reason === 'install') {
+        chrome.runtime.openOptionsPage();
+        // Show walkthrough
         await chromeUtils.storage.sync.set({ state: DEFAULT_STATE });
         initializedState = DEFAULT_STATE;
     } else {
@@ -31,25 +35,20 @@ async function initializeExtension(details) {
     console.log('State initialized to :', initializedState);
 }
 
-function openOptionsPage(details) {
-    if (details.reason === 'install') {
-        chrome.runtime.openOptionsPage();
-    }
-}
-
 async function filterWebNavigation(details) {
     if (details.parentFrameId !== -1) {
         return;
     }
 
-    const result = await chromeUtils.storage.sync.get(['state']);
-    const blockedUrls = result.state.blockedUrls;
+    const { state } = await chromeUtils.storage.sync.get(['state']);
+    const { blockedUrls, customRedirectUrl } = state;
+
 
     const { url } = details;
     if (doesUrlMatchBlockedUrls(url, blockedUrls)) {
         const { tabId } = details;
         const options = {
-            url: '/views/mission-control/mission-control.html'
+            url: (customRedirectUrl && toUrlString(customRedirectUrl)) || DEFAULT_REDIRECT_URL
         };
         await chromeUtils.tabs.update(tabId, options);
     }
@@ -61,7 +60,6 @@ function doesUrlMatchBlockedUrls(url, blockedUrls) {
         .map(toBlockedUrlRegExp)
         .reduce(
             (accum, blockedUrlRegExp) => {
-                console.log(url, blockedUrlRegExp);
                 return accum || url.match(blockedUrlRegExp)
             },
             false
@@ -69,5 +67,5 @@ function doesUrlMatchBlockedUrls(url, blockedUrls) {
 }
 
 function toBlockedUrlRegExp(blockedUrl) {
-    return new RegExp(`^https?://(.+\.|)${blockedUrl}(/.*|)$`)
+    return new RegExp(`^https?://(.+\.|)${blockedUrl}(/.*|)$`);
 }

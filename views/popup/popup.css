@@ -1,35 +1,8 @@
-* {
-    font-family: 'Roboto', sans-serif;
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    margin: 0;
-}
-
+body,
+html,
 .popup-wrapper {
-    height: 300px;
-    width: 300px;
-}
-
-.popup-goal-counter {
-    height: 100%;
-    width: 100%;
-}
-
-.popup-goal-counter > p {
-    margin: 0;
-}
-
-.popup-days-since-reset-number {
-    font-size: 32px;
-}
-
-.popup-days-since {
-
-}
-
-.popup-last-reset {
+    height: 350px;
+    width: 350px;
+    max-height: 350px;
+    max-width: 350px;
 }

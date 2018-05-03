@@ -1,84 +1,247 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="../../vendor/vue/vue.js"></script>
-    <script defer src="../../vendor/moment/moment.js"></script>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons">
+    <link rel="stylesheet" href="../../vendor/vue-material/vue-material.min.css">
+    <link rel="stylesheet" href="../../vendor/vue-material/themes/default.css">
     <link rel="stylesheet" href="options.css">
     <link rel="stylesheet" href="../../common/common.css">
+    <script src="../../vendor/vue/vue.js"></script>
+    <script src="../../vendor/vue-material/vue-material.min.js"></script>
+    <script defer src="../../vendor/moment/moment.js"></script>
+    <script defer src="../../vendor/vuelidate/vuelidate.min.js"></script>
+    <script defer src="../../vendor/vuelidate/validators.min.js"></script>
   </head>
   <body>
-    <main id="app">
-      <h1>Options</h1>
+    <div id="app">
+      <md-app style="height: 100vh;">
 
-      <section id="blocked-urls"
-               class="options section">
-        <h2>Block URLs</h2>
-        <label for="url">Enter a URL to block<br>e.g. https://www.example.com</label>
-        <input type="url"
-               id="url"
-               @keyup.enter="handleNewBlockedUrl"
-               v-model="forms.blockedUrls.input"/>
-        <ul>
-          <li v-for="url in state.blockedUrls">
-            <div>
-              <p>{{url}}</p>
-              <button v-on:click="() => handleRemovedBlockedUrl(url)">x</button>
+        <md-app-toolbar class="md-primary">
+          <h1 class="md-title">Options</h1>
+        </md-app-toolbar>
+
+        <md-app-content>
+          <div class="md-layout md-alignment-top-center">
+            <div class="md-layout-item md-size-60 md-small-size-100">
+              <md-card>
+                <md-card-header>
+                  <h2 class="md-title">Block URLs</h2>
+                </md-card-header>
+
+                <md-card-content>
+                  <form class="flex column"
+                        style="align-items: flex-start"
+                        novalidate
+                        @submit.prevent="() => validateForm('blockedUrls', handleNewBlockedUrl)">
+                    <md-field :class="getValidationClass('blockedUrls', 'input')">
+                      <label>Enter a URL to block</label>
+                      <md-input v-model="forms.blockedUrls.input"
+                                type="url">
+                      </md-input>
+                      <span class="md-error">Invalid URL supplied</span>
+                    </md-field>
+                  </form>
+                  <div>
+                    <md-chip v-show="state.blockedUrls && state.blockedUrls.length > 0"
+                             v-for="url in state.blockedUrls"
+                             class="md-primary"
+                             md-deletable
+                             md-static
+                             v-on:click="() => handleRemoveBlockedUrl(url)">
+                      {{url}}
+                    </md-chip>
+                  </div>
+                </md-card-content>
+              </md-card>
+
+              <md-card>
+                <md-card-header>
+                  <h2 class="md-title">Custom Redirect</h2>
+                </md-card-header>
+
+                <md-card-content>
+                  <p class="md-caption">
+                    If you want, you can redirect blocked URLs to any URL on the internet. By default, Mission Control
+                    uses its
+                    <a style="cursor: pointer;"
+                       v-on:click="redirectToMissionControlScreen">custom redirect screen</a>.
+                  </p>
+                  <form @submit.prevent="() => validateForm('customRedirectUrl', handleNewCustomRedirectUrl)"
+                        novalidate>
+                    <md-checkbox v-model="forms.customRedirectUrl.usesCustomRedirect"
+                                 v-on:change="handleCustomRedirectCheckboxChange"
+                                 class="md-primary">
+                      Use a custom redirect URL
+                    </md-checkbox>
+                    <md-field v-show="forms.customRedirectUrl.usesCustomRedirect"
+                              :class="getValidationClass('customRedirectUrl', 'url')">
+                      <label>Enter a custom URL</label>
+                      <md-input type="url"
+                                v-model="forms.customRedirectUrl.url">
+                      </md-input>
+                      <span class="md-error">Custom URL must be a valid URL, e.g. https://google.com</span>
+                    </md-field>
+                    <md-button type="submit"
+                               class="md-raised md-primary"
+                               v-show="forms.customRedirectUrl.usesCustomRedirect">
+                      Use URL
+                    </md-button>
+                    <md-button class="md-raised md-accent"
+                               v-on:click="handleRemoveCustomRedirectUrl"
+                               v-show="forms.customRedirectUrl.usesCustomRedirect">
+                      Remove URL
+                    </md-button>
+                  </form>
+                </md-card-content>
+              </md-card>
+
+              <md-card>
+                <md-card-header>
+                  <h2 class="md-title">Goal</h2>
+                </md-card-header>
+
+                <md-card-content
+                        v-if="isEditingGoal || !state.goal || (!state.goal.description && !state.lastResetDate)">
+                  <p class="md-caption">
+                    You can set a goal to remind you why you want to block certain URLs. An example goal could be that
+                    you want to reduce your social media usage.
+                  </p>
+                  <form id="goal-form"
+                        class="flex column"
+                        style="align-items: flex-start"
+                        @submit.prevent="() => validateForm('goal', isEditingGoal ? handleUpdateGoal : handleGoalFormSubmit)">
+                    <md-field :class="getValidationClass('goal', 'description')">
+                      <label>Enter a goal description *</label>
+                      <md-input v-model="forms.goal.description"
+                                type="text"
+                                ref="goal">
+                      </md-input>
+                      <span class="md-error">A description is required</span>
+                    </md-field>
+                    <md-datepicker v-model="forms.goal.lastResetDate"
+                                   :class="getValidationClass('goal', 'lastResetDate')">
+                      <label>Select your goal start date *</label>
+                      <span class="md-error">A goal start date is required</span>
+                    </md-datepicker>
+                    <md-checkbox id="show-goal"
+                                 v-model="forms.goal.isGoalVisible"
+                                 class="md-primary">
+                      Show goal?
+                    </md-checkbox>
+                    <div class="flex row">
+                      <md-button v-show="isEditingGoal"
+                                 class="md-raised"
+                                 v-on:click="handleCancelEdit">
+                        Cancel
+                      </md-button>
+                      <md-button type="submit"
+                                 class="md-raised md-primary">
+                        {{ isEditingGoal ? 'Update' : 'Track' }} Goal
+                      </md-button>
+                    </div>
+                  </form>
+                </md-card-content>
+                <md-card-content v-else-if="state.goal && state.goal.description && state.goal.lastResetDate">
+                  <p class="md-caption">
+                    Below is your current goal.
+                  </p>
+                  <md-list>
+                    <md-list-item>
+                      <md-icon>new_releases</md-icon>
+                      <span class="md-list-item-text">{{state.goal.description}}</span>
+                    </md-list-item>
+                    <md-divider class="md-inset"></md-divider>
+                    <md-list-item>
+                      <md-icon>today</md-icon>
+                      <span class="md-list-item-text">{{state.goal.daysSinceReset}} days since last reset</span>
+                    </md-list-item>
+                    <md-divider class="md-inset"></md-divider>
+                    <md-list-item>
+                      <md-icon>remove_red_eye</md-icon>
+                      <span v-if="state.goal.isGoalVisible"
+                            class="md-list-item-text">
+                        Show goal
+                      </span>
+                      <span v-else
+                            class="md-list-item-text">
+                        Do not show goal
+                      </span>
+                    </md-list-item>
+                  </md-list>
+                  <div class="flex row">
+                    <md-button v-on:click="handleResetGoal"
+                               class="md-raised">
+                      Reset Date
+                    </md-button>
+                    <md-button v-on:click="handleEditGoal"
+                               class="md-raised md-primary">
+                      Edit Goal
+                    </md-button>
+                    <md-button v-on:click="handleClearGoal"
+                               class="md-raised md-accent">
+                      Clear Goal
+                    </md-button>
+                  </div>
+                </md-card-content>
+              </md-card>
+
+              <md-card>
+                <md-card-header>
+                  <div class="flex row">
+                    <h2 class="md-title">Incognito Access</h2>
+                    <md-chip v-if="!isAllowedIncognitoAccess"
+                             class="md-accent"
+                             style="margin: 0 0 0 auto;">
+                      Disabled
+                    </md-chip>
+                    <md-chip v-else
+                             class="md-primary"
+                             style="margin: 0 0 0 auto;">
+                      Enabled
+                    </md-chip>
+                  </div>
+                </md-card-header>
+                <md-card-content>
+                  <div v-if="!isAllowedIncognitoAccess">
+                    <p>For Mission Control to work best, it should be enabled when the browser is used in Incognito
+                      Mode.</p>
+                    <md-button v-on:click="redirectToManageExtension"
+                               class="md-raised md-primary">
+                      Manage Extensions
+                      <md-icon style="margin: 0 0 0 auto;">launch</md-icon>
+                    </md-button>
+                  </div>
+                  <div v-else>
+                    <p>
+                      <md-icon style="color: #4CAF50;">done</md-icon>
+                      Mission Control is enabled for Incognito Mode.
+                    </p>
+                  </div>
+                </md-card-content>
+              </md-card>
             </div>
-          </li>
-        </ul>
-      </section>
+          </div>
 
-      <section id="redirect-url"
-               class="options section">
-
-      <section v-if="!state.goal || (!state.goal.description && !state.lastResetDate)"
-               class="options section">
-        <h2>Set a Goal</h2>
-        <p>Looks like you haven't set a goal! Why don't you set one!</p>
-        <form id="goal-form"
-              v-on:submit="handleGoalFormSubmit">
-          <label for="goal-description">Enter a goal description:</label>
-          <textarea v-model="forms.goal.description"
-                    id="goal-description"
-                    placeholder="I want to stop doing ....">
-          </textarea>
-          <label for="goal-last-reset-date">When did you start or will you start your goal?</label>
-          <input v-model="forms.goal.lastResetDate"
-                 id="goal-last-reset-date"
-                 type="date"
-                 placeholder="A date"/>
-          <button type="submit"
-                  class="btn primary">
-            Track Goal
-          </button>
-        </form>
-      </section>
-      <section v-else-if="state.goal && state.goal.description && state.goal.lastResetDate"
-               class="options section">
-        <h2>Your Current Goal</h2>
-        <p>{{state.goal.description}}</p>
-        <p>{{state.goal.lastResetDate}}</p>
-        <button v-on:click="handleClearGoal"
-                class="btn negative">
-          Clear Goal
-        </button>
-      </section>
-
-      <section id="incognito"
-               class="options section">
-        <h1>Incognito Access</h1>
-        <div v-if="!isAllowedIncognitoAccess">
-          <button v-on:click="redirectToManageExtension"
-                  class="btn primary">
-            Go to Settings
-          </button>
-        </div>
-        <div v-else>
-          Incognito mode enabled!
-        </div>
-      </section>
-
-    </main>
+          <md-snackbar md-position="center"
+                       :md-active.sync="snackbar.isVisible"
+                       md-persistent
+                       v-on:md-closed="clearSnackbar">
+            <p>
+              <md-icon v-show="snackbar.type === 'success'"
+                       style="color: #4CAF50;">
+                done
+              </md-icon>
+              <md-icon v-show="snackbar.type === 'fail'"
+                       style="color: #F44336;">
+                clear
+              </md-icon>
+              {{snackbar.message}}
+            </p>
+          </md-snackbar>
+        </md-app-content>
+      </md-app>
+    </div>
   </body>
   <script type="module" src="options.js"></script>
 </html>
